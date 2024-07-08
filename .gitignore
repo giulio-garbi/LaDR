@@ -1,0 +1,10 @@
+log
+old_modules
+_csdr_*
+_cs_*
+macro_plain_*
+support_file_*
+testcase*
+__pycache__/
+*.py[cod]
+*$py.class
