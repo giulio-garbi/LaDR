@@ -13,6 +13,7 @@ typedef int __cs_once_t;
 typedef int __cs_rwlock_t;
 typedef int __cs_rwlockattr_t;
 typedef int __cs_t;
+typedef unsigned int __cs_sem_t;
 typedef int size_t;
 typedef int __builtin_va_list;
 typedef int __gnuc_va_list;

@@ -42,6 +42,11 @@ changeID['pthread_rwlock_t'] = '__cs_rwlock_t'
 changeID['pthread_rwlockattr_t'] = '__cs_rwlockattr_t'
 changeID['pthread_t'] = '__cs_t'
 
+changeID['sem_t'] = '__cs_sem_t'
+changeID['sem_init'] = '__cs_sem_init'
+changeID['sem_wait'] = '__cs_sem_wait'
+changeID['sem_post'] = '__cs_sem_post'
+
 changeID['pthread_attr_destroy'] = '__cs_attr_destroy'
 changeID['pthread_attr_getdetachstate'] = '__cs_attr_getdetachstate'
 changeID['pthread_attr_getguardsize'] = '__cs_attr_getguardsize'

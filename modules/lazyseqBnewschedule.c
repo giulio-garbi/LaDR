@@ -92,6 +92,38 @@ int __cs_mutex_unlock(__cs_mutex_t *__cs_mutex_to_unlock, unsigned int __cs_thre
 	return 0;
 }
 
+typedef int __cs_sem_t;
+
+int __cs_sem_init (__cs_sem_t *__cs_s, int val) {
+	*__cs_s = val+2;
+	return 0;
+}
+
+int __cs_sem_destroy(__cs_sem_t *__cs_sem_to_destroy) {
+	__CSEQ_assertext(*__cs_sem_to_destroy!=0,"attempt to destroy an uninitialized semaphore");
+	__CSEQ_assertext(*__cs_sem_to_destroy!=1,"attempt to destroy a previously destroyed semaphore");
+	*__cs_sem_to_destroy = 1;
+	__CSEQ_message("semaphore destroyed");
+	return 0;
+}
+
+int __cs_sem_wait(__cs_sem_t *__cs_sem_to_lock) {
+	__CSEQ_assertext(*__cs_sem_to_lock!=0,"attempt to lock an uninitialized semaphore");
+	__CSEQ_assertext(*__cs_sem_to_lock!=1,"attempt to lock a destroyed semaphore");
+	__CSEQ_assume(*__cs_sem_to_lock>2);
+	(*__cs_sem_to_lock)--;
+	__CSEQ_message("semaphore acquired");
+	return 0;
+}
+
+int __cs_sem_post(__cs_sem_t *__cs_sem_to_unlock) {
+	__CSEQ_assertext(*__cs_sem_to_unlock!=0,"attempt to unlock an uninitialized semaphore");
+	__CSEQ_assertext(*__cs_sem_to_unlock!=1,"attempt to unlock a destroyed semaphore");
+	(*__cs_sem_to_unlock)++;
+	__CSEQ_message("semaphore released");
+	return 0;
+}
+
 typedef int __cs_cond_t;
 
 int __cs_cond_init(__cs_cond_t *__cs_cond_to_init, void *__cs_attr) {

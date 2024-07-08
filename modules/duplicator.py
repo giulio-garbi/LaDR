@@ -155,6 +155,9 @@ class duplicator(core.module.Translator):
             #self.warn("new thread found: %s %s" % (fNameIndexed, self.__actualthreads))
             self.__threadindexes[fNameIndexed] = self.__actualthreads
             self.__threadindextoname[self.__actualthreads] = fName
+        elif fref == core.common.changeID['sem_init']:
+            del n.args.exprs[1]
+            args = self.visit(n.args)
         else:
             args = self.visit(n.args)
 
