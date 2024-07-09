@@ -205,6 +205,7 @@ class instrumenter(core.module.Translator):
 
 	def loadfromstring(self,string,env):
 		self.env = env
+		self.mutexattr = "const _Bool __cs_uses_mutexattr = 0"
 
 
 		self.backend = self.getInputParamValue('backend')
@@ -263,7 +264,7 @@ class instrumenter(core.module.Translator):
 			else:
 				newstring += ' '*(maxlinemarkerlen)+l+'\n'
 
-		self.output = newstring
+		self.output = "#include <stdio.h>\n"+self.mutexattr+";\n"+newstring
 		
 		#print("***********************************")
 		
@@ -320,6 +321,9 @@ class instrumenter(core.module.Translator):
 		# no_type is used when a Decl is part of a DeclList, where the type is
 		# explicitly only for the first delaration in a list.
 		#
+		if n.name == "__cs_uses_mutexattr":
+		    self.mutexattr = "const _Bool __cs_uses_mutexattr = "+str(n.init.value)
+		    return ""
 		s = n.name if no_type else self._generate_decl(n)
 
 		# In case  x  has a custom bitwidth (passed by a previous module), convert

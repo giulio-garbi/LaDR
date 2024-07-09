@@ -62,6 +62,10 @@ VERSION = 'workaround-0.1-2016.11.13'
         fix PTHREAD_MUTEX_INITIALIZER     initialization
             PTHREAD_COND_INITIALIZER
             PTHREAD_RWLOCK_INITIALIZER
+            
+         
+     Transformation 10:
+         see if there's any mutexattr
 
 Changelog:
     2016.11.18  bugfixes for svcomp 2017, add workarounds 7 and 8
@@ -81,6 +85,7 @@ import core.common, core.module, core.parser, core.utils
 
 class workarounds(core.module.Translator):
     __threadLocals = []
+    finished_stripping_stuff = False
 
     __parsingFunction = ''
     currentAnonStructsCount = 0  # counts the number of anonymous structures (used to assign consecutive names)
@@ -98,6 +103,11 @@ class workarounds(core.module.Translator):
             return '__cs_thread_local_' + n.name + '[__cs_thread_index]'
         else:
             return n.name
+            
+    def visit_FileAST(self, n):
+        self.any_mutexattr = False
+        ans = super().visit_FileAST(n) # + "\n" + self.visit_FuncDef(self.mainNode, visitMain = True)
+        return "_Bool __cs_uses_mutexattr = " + ("1" if self.any_mutexattr else "0") + ";\n"+ ans
 
     def visit_FuncDef(self, n):
         self.__parsingFunction = n.decl.name
@@ -121,6 +131,15 @@ class workarounds(core.module.Translator):
         else:
             self.__parsingFunction = ''
             return decl + '\n' + body + '\n'
+            
+    def visit_Typedef(self, n):
+        if n.name == "_____STOPSTRIPPINGFROMHERE_____":
+            self.finished_stripping_stuff = True
+            return super().visit_Typedef(n)
+        elif self.finished_stripping_stuff and n.name in ("spinlock_t", "pthread_mutex_t", "pthread_mutexattr_t"):
+            return ""
+        else:
+            return super().visit_Typedef(n)
 
     def visit_FuncCall(self, n):
         fref = self._parenthesize_unless_simple(n.name)
@@ -143,6 +162,8 @@ class workarounds(core.module.Translator):
             args += self.visit(n.args.exprs[3])
         else:
             args = self.visit(n.args)
+            if fref.startswith("pthread_mutexattr"):
+                self.any_mutexattr = True
 
         return fref + '(' + args + ')'
 

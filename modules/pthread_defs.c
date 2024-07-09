@@ -1,6 +1,6 @@
 #define __cs_MUTEX_INITIALIZER -1
 #define __cs_COND_INITIALIZER -1
-#define __cs_RWLOCK_INITIALIZER -1
+#define __cs_RWLOCK_INITIALIZER 1
 #define __cs_BARRIER_SERIAL_THREAD 0
 #define __cs_CANCEL_ASYNCHRONOUS 0
 #define __cs_CANCEL_ENABLE 0
@@ -11,9 +11,9 @@
 #define __cs_CREATE_JOINABLE 0
 #define __cs_EXPLICIT_SCHED 0
 #define __cs_INHERIT_SCHED 0
-#define __cs_MUTEX_DEFAULT 0
-#define __cs_MUTEX_ERRORCHECK 0
-#define __cs_MUTEX_NORMAL 0
+#define __cs_MUTEX_DEFAULT 1
+#define __cs_MUTEX_ERRORCHECK 2
+#define __cs_MUTEX_NORMAL 1
 #define __cs_MUTEX_RECURSIVE 0
 #define __cs_MUTEX_ROBUST 0
 #define __cs_MUTEX_STALLED 0

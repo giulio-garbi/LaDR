@@ -46,49 +46,128 @@ int __cs_exit(void *__cs_value_ptr, unsigned int __cs_thread_index) {
 
 int __cs_self(void) { return 1; }
 
+typedef int __cs_mutexattr_t;
+
+int __cs_mutexattr_init (__cs_mutexattr_t *__cs_m) {
+	*__cs_m = __cs_MUTEX_DEFAULT;
+	return 0;
+}
+
+int __cs_mutexattr_destroy(__cs_mutexattr_t *__cs_mutex_to_destroy) {
+	__CSEQ_assertext(*__cs_mutex_to_destroy!=0,"attempt to destroy an uninitialized mutexattr");
+	__CSEQ_assertext(*__cs_mutex_to_destroy!=-1,"attempt to destroy a previously destroyed mutexattr");
+	*__cs_mutex_to_destroy = -1;
+	__CSEQ_message("mutexattr destroyed");
+	return 0;
+}
+
+int __cs_mutexattr_settype(__cs_mutexattr_t *attr, int type){
+    __CSEQ_assertext(*attr!=0,"attempt to set an uninitialized mutexattr");
+	__CSEQ_assertext(*attr!=-1,"attempt to set a previously destroyed mutexattr");
+	*attr = type;
+	__CSEQ_message("mutexattr set");
+	return 0;
+}
+
 typedef int __cs_mutex_t;
 
-int __cs_mutex_init (__cs_mutex_t *__cs_m, int __cs_val) {
-	*__cs_m = -1;
+int __cs_mutex_init (__cs_mutex_t *__cs_m, __cs_mutexattr_t* __cs_val) {
+    if(!__cs_uses_mutexattr){
+	    *__cs_m = -1;
+	} else {
+	    if(!__cs_val || *__cs_val == 1){
+	        *__cs_m = -1;
+	    } else if(*__cs_val == 2) {
+	        *__cs_m = -2;
+	    } else {
+	        __CSEQ_assertext(0,"unimplemented mutex attr");
+	    }
+	}
 	return 0;
 }
 
 int __cs_mutex_destroy(__cs_mutex_t *__cs_mutex_to_destroy) {
 	__CSEQ_assertext(*__cs_mutex_to_destroy!=0,"attempt to destroy an uninitialized mutex");
-	__CSEQ_assertext(*__cs_mutex_to_destroy!=-2,"attempt to destroy a previously destroyed mutex");
-	__CSEQ_assertext(*__cs_mutex_to_destroy==-1,"attempt to destroy a locked mutex");
-	*__cs_mutex_to_destroy = -2;
+	__CSEQ_assertext(*__cs_mutex_to_destroy!=-3,"attempt to destroy a previously destroyed mutex");
+    if(!__cs_uses_mutexattr){
+	    __CSEQ_assertext(*__cs_mutex_to_destroy==-1,"attempt to destroy a locked mutex");
+	} else {
+	    __CSEQ_assertext((*__cs_mutex_to_destroy>>1)==-1,"attempt to destroy a locked mutex");
+	}
+	*__cs_mutex_to_destroy = -3;
 	__CSEQ_message("lock destroyed");
 	return 0;
 }
 
 int __cs_mutex_lock(__cs_mutex_t *__cs_mutex_to_lock, unsigned int __cs_thread_index) {
-	__CSEQ_assertext(*__cs_mutex_to_lock!=0,"attempt to lock an uninitialized mutex");
-	__CSEQ_assertext(*__cs_mutex_to_lock!=-2,"attempt to lock a destroyed mutex");
-	__CSEQ_assume(*__cs_mutex_to_lock==-1);
-	*__cs_mutex_to_lock = __cs_thread_index+1;
-	__CSEQ_message("lock acquired");
+    __CSEQ_assertext(*__cs_mutex_to_lock!=0,"attempt to lock an uninitialized mutex");
+    __CSEQ_assertext(*__cs_mutex_to_lock!=-3,"attempt to lock a destroyed mutex");
+    if(!__cs_uses_mutexattr){
+	    __CSEQ_assume(*__cs_mutex_to_lock==-1);
+	    *__cs_mutex_to_lock = __cs_thread_index+1;
+	    __CSEQ_message("lock acquired");
+	} else {
+	    _Bool is_default = (*__cs_mutex_to_lock) & 1;
+	    if(is_default){
+	        __CSEQ_assume(*__cs_mutex_to_lock==-1);
+	        *__cs_mutex_to_lock = ((__cs_thread_index+1)<<1)|1;
+	        __CSEQ_message("lock acquired");
+	    } else {
+	        if(*__cs_mutex_to_lock==-2){
+	            *__cs_mutex_to_lock = (__cs_thread_index+1)<<2;
+	            __CSEQ_message("lock acquired");
+	        } else {
+	            return 16;
+	        }
+	    }
+	}
 	return 0;
 }
 
 int __cs_mutex_trylock(__cs_mutex_t *__cs_mutex_to_lock, unsigned int __cs_thread_index) {
-	__CSEQ_assertext(*__cs_mutex_to_lock!=0,"attempt to lock an uninitialized mutex");
-	__CSEQ_assertext(*__cs_mutex_to_lock!=-2,"attempt to lock a destroyed mutex");
-	if(*__cs_mutex_to_lock==-1){
-	    *__cs_mutex_to_lock = __cs_thread_index+1;
-	    __CSEQ_message("lock acquired");
-	    return 0;
+    __CSEQ_assertext(*__cs_mutex_to_lock!=0,"attempt to lock an uninitialized mutex");
+    __CSEQ_assertext(*__cs_mutex_to_lock!=-3,"attempt to lock a destroyed mutex");
+    if(!__cs_uses_mutexattr){
+	    if(*__cs_mutex_to_lock==-1){
+	        *__cs_mutex_to_lock = __cs_thread_index+1;
+	        __CSEQ_message("lock acquired");
+	        return 0;
+	    } else {
+	        return 16;
+	    }
 	} else {
-	    return 16;
+	    if((*__cs_mutex_to_lock)>>1==-1){
+	        *__cs_mutex_to_lock = __cs_thread_index+1 << 1 | ((*__cs_mutex_to_lock) & 1);
+	        __CSEQ_message("lock acquired");
+	        return 0;
+	    } else {
+	        return 16;
+	    }
 	}
 }
 
 int __cs_mutex_unlock(__cs_mutex_t *__cs_mutex_to_unlock, unsigned int __cs_thread_index) {
-	__CSEQ_assertext(*__cs_mutex_to_unlock!=0,"attempt to unlock an uninitialized mutex");
-	__CSEQ_assertext(*__cs_mutex_to_unlock!=-2,"attempt to unlock a destroyed mutex");
-	__CSEQ_assume(*__cs_mutex_to_unlock==(__cs_thread_index+1));
-	*__cs_mutex_to_unlock = -1;
-	__CSEQ_message("lock released");
+    __CSEQ_assertext(*__cs_mutex_to_unlock!=0,"attempt to unlock an uninitialized mutex");
+    __CSEQ_assertext(*__cs_mutex_to_unlock!=-3,"attempt to unlock a destroyed mutex");
+    if(!__cs_uses_mutexattr){
+	    __CSEQ_assume(*__cs_mutex_to_unlock==(__cs_thread_index+1));
+	    *__cs_mutex_to_unlock = -1;
+	    __CSEQ_message("lock released");
+	} else {
+	    _Bool is_default = (*__cs_mutex_to_unlock) & 1;
+	    if(is_default){
+	        __CSEQ_assume(*__cs_mutex_to_unlock>>1==(__cs_thread_index+1));
+	        *__cs_mutex_to_unlock = -1;
+	        __CSEQ_message("lock released");
+	    } else {
+	        if(*__cs_mutex_to_unlock>>1==(__cs_thread_index+1)){
+	            *__cs_mutex_to_unlock = -2;
+	            __CSEQ_message("lock released");
+	        } else {
+	            return 16;
+	        }
+	    }
+	}
 	return 0;
 }
 
