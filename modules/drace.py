@@ -3,6 +3,37 @@ from core import abs_dr_rules
 import pycparser
 import math
 
+class Dec:
+    def __init__(self, dec):
+        self.dec = dec
+        self.glob = False
+        
+    def makeglob(self):
+        self.glob = True
+        
+class search_globloc(pycparser.c_ast.NodeVisitor):
+    alldecs = {None:{} }
+    funcname = None
+    
+    def visit_FuncDef(self, n):
+        self.funcname = n.decl.name
+        self.alldecs[self.funcname] = {}
+        super().generic_visit(n)
+        self.funcname = None
+        
+    def visit_Decl(self, n):
+        if self.funcname is not None or (type(n.type) is pycparser.c_ast.TypeDecl and hasattr(n, 'name') and n.name.startswith("__cz_thread_local")):
+            self.alldecs[self.funcname][n.name] = Dec(n)
+        super().generic_visit(n)
+        
+    def visit_UnaryOp(self, n):
+        if n.op == "&":
+            if type(n.expr) is pycparser.c_ast.ArrayRef and type(n.expr.name) is pycparser.c_ast.ID and n.expr.name.name.startswith("__cz_thread_local"):
+                self.alldecs[None][n.expr.name.name].makeglob()
+            elif type(n.expr) is pycparser.c_ast.ID and n.expr.name in self.alldecs[self.funcname]: 
+                self.alldecs[self.funcname][n.expr.name].makeglob()
+        super().generic_visit(n)
+
 class drace(abstr_dr_common.abstr_dr_common):
 
     __codeContainsAtomic = False #set to True if code contains blocks that are executed atomically
@@ -30,6 +61,17 @@ class drace(abstr_dr_common.abstr_dr_common):
             #self.__VP1required = False
             #self.__VP2required = False
         return
+        
+    def visit_FileAST(self, n):
+        self.sgl = search_globloc()
+        self.sgl.visit(self.ast)
+        return super().visit_FileAST(n)
+        
+    def is_globalized(self, f, v):
+        if v.startswith("__cz_thread_local"):
+            return v in self.sgl.alldecs[None] and self.sgl.alldecs[None][v].glob
+        else:
+            return f in self.sgl.alldecs and v in self.sgl.alldecs[f] and self.sgl.alldecs[f][v].glob
     
     #self.__VP1required = True  self.__VP2required = True 
     def additionalCode(self,threadIndex):

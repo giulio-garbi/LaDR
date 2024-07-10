@@ -118,7 +118,7 @@ class constants(core.module.Translator):
         #
         if ((self.__isGlobal(self.__currentFunction, n.name) or self.__isPointer(self.__currentFunction,
                                                                                  n.name)) and not n.name.startswith(
-                '__cs_thread_local_')):
+                '__cz_thread_local_')):
             self.__globalMemoryAccessed = True
         return n.name
 

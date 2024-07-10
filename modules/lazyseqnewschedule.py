@@ -722,7 +722,7 @@ class lazyseqnewschedule(core.module.Translator):
 		# or to a pointer...
 		#
 		if ((self._isGlobal(self.__currentThread, n.name) or self._isPointer(self.__currentThread, n.name)) and not
-			n.name.startswith('__cs_thread_local_')):
+			n.name.startswith('__cz_thread_local_')) or self.is_globalized(self.__currentThread, n.name):
 			#print "variable %s in %s is global\n" % (n.name, self.__currentThread)
 			self.__globalMemoryAccessed = True
 
@@ -1731,9 +1731,13 @@ class lazyseqnewschedule(core.module.Translator):
 		if v in self.Parser.varNames[f] and self.Parser.varType[f,v].endswith('*'): return True
 		elif v in self.Parser.varNames[''] and self.Parser.varType['',v].endswith('*'): return True
 		else: return False
-
+		
+	def is_globalized(self, f, v):
+		return False
+		
 	# Checks whether variable  v  from function  f  is global.
 	def _isGlobal(self, f, v):
+		if self.is_globalized(f, v): return True
 		if (v in self.Parser.varNames[''] and v not in self.Parser.varNames[f]): return True
 		else: return False
 	#	return False

@@ -240,7 +240,7 @@ class inliner(core.module.Translator):
         # or to a pointer...
         #
         if (self.__isGlobal(self.currentFunction[-1], n.name) and not
-        n.name.startswith('__cs_thread_local_')):
+        n.name.startswith('__cz_thread_local_')):
             self.__globalMemoryAccessed = True
 
         name = self.updateName(n.name)

@@ -111,11 +111,11 @@ struct device {
         '''
         ret = ''
         for line in input.splitlines():
-            line = re.sub(r'__thread unsigned int (.*);', r'unsigned int __cs_thread_local_\1[THREADS+1];', line)
-            line = re.sub(r'__thread int (.*)=(.*);', r'int __cs_thread_local_\1[THREADS+1]={\2};', line)
-            line = re.sub(r'__thread int (.*);', r'int __cs_thread_local_\1[THREADS+1];', line)
-            line = re.sub(r'__thread int[*] (.*)=(.*);', r'int* __cs_thread_local_\1[THREADS+1]={\2};', line)
-            line = re.sub(r'__thread int[*] (.*);', r'int* __cs_thread_local_\1[THREADS+1];', line)
+            line = re.sub(r'__thread unsigned int (.*);', r'unsigned int __cz_thread_local_\1[THREADS+1];', line)
+            line = re.sub(r'__thread int (.*)=(.*);', r'int __cz_thread_local_\1[THREADS+1]={\2};', line)
+            line = re.sub(r'__thread int (.*);', r'int __cz_thread_local_\1[THREADS+1];', line)
+            line = re.sub(r'__thread int[*] (.*)=(.*);', r'int* __cz_thread_local_\1[THREADS+1]={\2};', line)
+            line = re.sub(r'__thread int[*] (.*);', r'int* __cz_thread_local_\1[THREADS+1];', line)
             line = line.replace('do { } while (0);', ';')
             ret += line + '\n'
 
@@ -152,8 +152,8 @@ struct device {
         text = ''
 
         for line in input.splitlines():
-            line = re.sub(r'__thread _Bool (.*) = 0', r'_Bool __cs_thread_local_\1[THREADS+1] ', line)
-            line = re.sub(r'_Thread_local _Bool (.*) = 0', r'_Bool __cs_thread_local_\1[THREADS+1] ', line)
+            line = re.sub(r'__thread _Bool (.*) = 0', r'_Bool __cz_thread_local_\1[THREADS+1] ', line)
+            line = re.sub(r'_Thread_local _Bool (.*) = 0', r'_Bool __cz_thread_local_\1[THREADS+1] ', line)
 
             #line = re.sub(r'__const', r'const', line)	
 
