@@ -171,6 +171,51 @@ int __cs_mutex_unlock(__cs_mutex_t *__cs_mutex_to_unlock, unsigned int __cs_thre
 	return 0;
 }
 
+typedef int __cs_rwlock_t;
+int __cs_rwlock_init (__cs_rwlock_t *__cs_m, int __cs_val) {
+	*__cs_m = 1;
+	return 0;
+}
+
+int __cs_rwlock_destroy(__cs_rwlock_t *__cs_rwlock_to_destroy) {
+	__CSEQ_assertext(*__cs_rwlock_to_destroy!=0,"attempt to destroy an uninitialized rwlock");
+	__CSEQ_assertext(*__cs_rwlock_to_destroy!=-2,"attempt to destroy a previously destroyed rwlock");
+	__CSEQ_assertext(*__cs_rwlock_to_destroy==1,"attempt to destroy a locked rwlock");
+	*__cs_rwlock_to_destroy = -2;
+	__CSEQ_message("rwlock destroyed");
+	return 0;
+}
+
+int __cs_rwlock_wrlock(__cs_rwlock_t *__cs_rwlock_to_lock) {
+	__CSEQ_assertext(*__cs_rwlock_to_lock!=0,"attempt to wrlock an uninitialized rwlock");
+	__CSEQ_assertext(*__cs_rwlock_to_lock!=-2,"attempt to wrlock a destroyed rwlock");
+	__CSEQ_assume(*__cs_rwlock_to_lock==1);
+	*__cs_rwlock_to_lock = -1;
+	__CSEQ_message("rwlock acquired writing");
+	return 0;
+}
+
+int __cs_rwlock_rdlock(__cs_rwlock_t *__cs_rdlock_to_lock) {
+	__CSEQ_assertext(*__cs_rdlock_to_lock!=0,"attempt to rdlock an uninitialized rwlock");
+	__CSEQ_assertext(*__cs_rdlock_to_lock!=-2,"attempt to rdlock a destroyed rwlock");
+	__CSEQ_assume(*__cs_rdlock_to_lock>=0);
+	(*__cs_rdlock_to_lock)++;
+	__CSEQ_message("rwlock acquired read");
+	return 0;
+}
+
+int __cs_rwlock_unlock(__cs_rwlock_t *__cs_rwlock_to_unlock) {
+	__CSEQ_assertext(*__cs_rwlock_to_unlock!=0,"attempt to unlock an uninitialized rwlock");
+	__CSEQ_assertext(*__cs_rwlock_to_unlock!=-2,"attempt to unlock a destroyed rwlock");
+	__CSEQ_assume(*__cs_rwlock_to_unlock!=1);
+	if(*__cs_rwlock_to_unlock == -1)
+	    *__cs_rwlock_to_unlock = 1;
+    else
+        (*__cs_rwlock_to_unlock)--;
+	__CSEQ_message("rwlock released");
+	return 0;
+}
+
 typedef int __cs_sem_t;
 
 int __cs_sem_init (__cs_sem_t *__cs_s, int val) {
