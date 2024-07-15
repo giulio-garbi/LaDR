@@ -230,15 +230,7 @@ class feeder(core.module.BasicModule):
 		
 		#Caledem
 		if backend == "cbmc":
-			if env.enableDR:
-				if env.no_shadow:
-					exe = "cbmc" #"./cbmc-v5.10-static"
-				else:
-					exe = "./cbmc-SM"	
-			elif env.local == 2:
-				exe = "./cbmc-SM"
-			else:
-				exe = "cbmc" #"./cbmc-v5.10-static"
+			exe = "./cbmc" #"./cbmc-v5.10-static"
 
 		currentpath = os.getcwd()
 		# currentworkingdir = os.path.dirname(sys.argv[0])
