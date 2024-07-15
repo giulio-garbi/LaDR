@@ -264,7 +264,7 @@ class instrumenter(core.module.Translator):
 			else:
 				newstring += ' '*(maxlinemarkerlen)+l+'\n'
 
-		self.output = "#include <stdio.h>\n"+self.mutexattr+";\n"+newstring
+		self.output = "#include <stdio.h>\n#include <stdint.h>\n"+self.mutexattr+";\n"+newstring
 		
 		#print("***********************************")
 		
