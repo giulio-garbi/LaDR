@@ -22,8 +22,10 @@ class search_globloc(pycparser.c_ast.NodeVisitor):
         self.funcname = None
         
     def visit_Decl(self, n):
-        if self.funcname is not None or (type(n.type) is pycparser.c_ast.TypeDecl and hasattr(n, 'name') and n.name.startswith("__cz_thread_local")):
+        if self.funcname is not None:
             self.alldecs[self.funcname][n.name] = Dec(n)
+        elif type(n.type) is pycparser.c_ast.ArrayDecl and type(n.type.type) is pycparser.c_ast.TypeDecl and hasattr(n, 'name') and n.name.startswith("__cz_thread_local"):
+            self.alldecs[None][n.name] = Dec(n)
         super().generic_visit(n)
         
     def visit_UnaryOp(self, n):
