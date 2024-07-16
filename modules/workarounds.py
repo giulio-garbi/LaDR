@@ -162,6 +162,8 @@ class workarounds(core.module.Translator):
             args += self.visit(n.args.exprs[3])
         else:
             args = self.visit(n.args)
+            if fref == "spin_lock_init":
+                args += ", NULL"
             if fref.startswith("pthread_mutexattr"):
                 self.any_mutexattr = True
 
