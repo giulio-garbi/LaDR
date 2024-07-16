@@ -207,7 +207,6 @@ class instrumenter(core.module.Translator):
 		self.env = env
 		self.mutexattr = "const _Bool __cs_uses_mutexattr = 0"
 
-
 		self.backend = self.getInputParamValue('backend')
 		self.bitwidths = self.getInputParamValue('bitwidth')
 		self.extheader = self.getInputParamValue('header')
@@ -263,8 +262,9 @@ class instrumenter(core.module.Translator):
 				newstring += ' '*(maxlinemarkerlen)+l.replace("char","__CPROVER_bitvector[1]")+'\n'
 			else:
 				newstring += ' '*(maxlinemarkerlen)+l+'\n'
-
-		self.output = "#include <stdio.h>\n#include <stdint.h>\n"+self.mutexattr+";\n"+newstring
+        
+		ffs_code = "#define REPEATCODE(X) X X\nint ffs(unsigned int x){\nint i=1;\nREPEATCODE(REPEATCODE(REPEATCODE(REPEATCODE(REPEATCODE(if(1<<(i-1) & x) return i; i++;)))))\nreturn 0;\n}\n"
+		self.output = "#include <stdio.h>\n#include <stdint.h>\n"+ffs_code+self.mutexattr+";\n"+newstring
 		
 		#print("***********************************")
 		
