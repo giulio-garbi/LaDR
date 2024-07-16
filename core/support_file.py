@@ -386,7 +386,7 @@ enum t_typename {
         
     def __cleanParamDecl(self, n):
         # returns a new declaration where arrays without dimensions are replaced with pointers.
-        if type(n.type) is IdentifierType:
+        if not hasattr(n,'type') or type(n.type) is IdentifierType:
             return n
         n_cp = copy.copy(n)
         if type(n.type) is ArrayDecl and n.type.dim is None:
