@@ -23,7 +23,7 @@ class dr_varnames(varnames.varnames):
 		super(self.__class__, self).loadfromstring(string, env)
 		
 	def visit_FuncCall(self, n):
-		if n.name.name == "offsetof":
+		if hasattr(n.name, "name") and n.name.name == "offsetof":
 			ans = self.cgenerator.visit(n)
 			return "myoffsetof(\""+ans+"\")"
 		else:

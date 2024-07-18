@@ -195,7 +195,7 @@ enum t_typename {
         
     def visit_FuncCall(self, n):
         ans = []
-        if n.name.name in ("__cs_safe_malloc", "__CSEQ_assert", "assert", "__CSEQ_assume"):
+        if hasattr(n.name, "name") and n.name.name in ("__cs_safe_malloc", "__CSEQ_assert", "assert", "__CSEQ_assume"):
             with self.set_can_value(True):
                 ans += self.visit(n.args.exprs[0])
         '''if self.can_value:

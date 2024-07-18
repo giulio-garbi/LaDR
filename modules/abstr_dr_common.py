@@ -663,7 +663,10 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
         
         
     def DRvisit_FuncCall(self, n):
-        fref = n.name.name #self.frefVisit(n)
+        if hasattr(n, "name") and hasattr(n.name, "name"):
+            fref = n.name.name
+        else:
+            fref = self.frefVisit(n)
         if fref == "myoffsetof":
             return n.args.exprs[0].value[1:-1]
         elif fref == "_cs_return_val_helperdr":
