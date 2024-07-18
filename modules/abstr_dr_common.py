@@ -441,7 +441,14 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
                             if self.am_main_nothing_concur:
                                 code = s+";\n"
                             else:
+                                vpbak = (self.abs_dr_vpstate.VP1required, self.abs_dr_vpstate.VP2required) if self.abs_dr_vpstate is not None and type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name.startswith('__CSEQ_atomic') and stmt.name.name != '__CSEQ_atomic_begin' and stmt.name.name != '__CSEQ_atomic_end' else None
+                                if vpbak is not None:
+                                    self.abs_dr_vpstate.VP1required = True
+                                    self.abs_dr_vpstate.VP2required = True
                                 code = prefix + self.additionalCode(threadIndex) + '@£@I2' + s + '@£@I3' + self.alternateCode(stmt) + '@£@I4' + ';\n'
+                                if vpbak is not None:
+                                    self.abs_dr_vpstate.VP1required = vpbak[0]
+                                    self.abs_dr_vpstate.VP2required = vpbak[1]
     
                     else:
                         with self.clean_cp_state():
