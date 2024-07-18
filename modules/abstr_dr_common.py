@@ -714,6 +714,8 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
         #if fref == '__cs_safe_malloc': 
         #    print("ARGS: " + args)
         #    n.show()
+        if type(fref) is c_ast.UnaryOp:
+            fref = self._visit_expr(expr)
         if fref == '__CSEQ_atomic_begin':
             if not self._lazyseqnewschedule__visit_funcReference:
                 self._lazyseqnewschedule__atomic = True
