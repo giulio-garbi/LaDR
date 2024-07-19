@@ -140,6 +140,12 @@ class workarounds(core.module.Translator):
             return ""
         else:
             return super().visit_Typedef(n)
+            
+    def visit_TernaryOp(self, n):
+        if type(n.iftrue) is pycparser.c_ast.FuncCall and type(n.iftrue.name) is pycparser.c_ast.ID and n.iftrue.name.name == "reach_error":
+            return "assert(!("+self.visit(n.cond)+"))"
+        else:
+            return super().visit_TernaryOp(n)
 
     def visit_FuncCall(self, n):
         fref = self._parenthesize_unless_simple(n.name)
