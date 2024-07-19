@@ -819,7 +819,7 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
             extra_args['dr_vp_state'] = self.abs_dr_vpstate
             extra_args['atomic'] = self._lazyseqnewschedule__atomic or self.atomicLvl > 0
             
-        if fref in ('__CSEQ_assert', '__CSEQ_assume', 'assert', '__assert_fail'):
+        if fref in ('__CSEQ_assert', '__CSEQ_assume', 'assert', '__assert_fail', '__CPROVER_assume'):
             return self.abs_dr_rules.rule_Assert_Assume(self.abs_dr_state, n, self.abs_dr_mode['abs_mode'], self.abs_dr_mode['dr_mode'], self.full_statement, **extra_args)
         elif fref == 'sizeof':
             return self.abs_dr_rules.rule_Sizeof(self.abs_dr_state, n, self.abs_dr_mode['abs_mode'], self.abs_dr_mode['dr_mode'], self.full_statement, **extra_args)
@@ -892,8 +892,6 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
         if not self.any_instrument or not (self.dr_on or self.abs_on):
             return super().visit_Decl(n)
         else:
-            if n.name == "__dr_nondet_thread_i":
-                print(n)
             ans = self.c_generator.visit(n)
             type_of_n = getType(n.type)
             assert(type_of_n == 'TypeDecl' or type_of_n == 'FuncDecl' or type_of_n == 'PtrDecl' or type_of_n == 'ArrayDecl' or type_of_n == 'Struct', 'Invalid type: '+type_of_n)
@@ -1014,8 +1012,6 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
                 pass
             if n.init:
                 #TODO
-                if n.name == "__cs_local_reader_two_read":
-                    print(n)
                 init = ""
                 if type_of_n == 'ArrayDecl':
                     init += ";"

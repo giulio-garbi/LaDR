@@ -1239,7 +1239,10 @@ class AbsDrRules:
             
     def __assert_assume_inner(self, state, exp, **kwargs):
         if not self.abs_on or state.cp_bav == 0:
-            return self.visitor_visit(state, exp, "VALUE", "WSE", **kwargs)
+            if self.dr_on:
+                return self.or_expr(self.visitor_visit(state, exp, "VALUE", "WSE", **kwargs), self.dr)
+            else:
+                return self.visitor_visit(state, exp, "VALUE", "WSE", **kwargs)
         elif state.cp_bav == 1:
             return self.nondet()
         elif state.cp_bav is None:
