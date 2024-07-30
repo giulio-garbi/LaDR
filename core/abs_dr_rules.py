@@ -1535,7 +1535,7 @@ class AbsDrRules:
                 self.if_dr(lambda: 
                     self.and_expr(
                         self.p2code(self.getVpstate(**kwargs)), 
-                        self.brackets(self.assign_with_prop(state,"dr", self.getsm("&("+sid.name+")", self.getsm_dr(kwargs)), self.or_expr_prop(self.cp(state, "dr"), self.cp(state, "wam"))))
+                        self.brackets(self.assign_with_prop(state,"dr", self.or_expr_prop(self.getsm("&("+sid.name+")", self.getsm_dr(kwargs)), self.cp(state, "dr"), self.cp(state, "wam"))))
                     ) if dr_mode not in ("NO_ACCESS", "PREFIX") else ""),
                 self.if_abs(lambda: self.assign_with_prop(state,"bal","0")),
                 self.if_abs(lambda: self.assign_with_prop(state,"bav","0") if abs_mode in ("GET_VAL", "UPD_VAL") else "")
