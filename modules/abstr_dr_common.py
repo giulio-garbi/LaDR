@@ -349,7 +349,8 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == core.common.changeID['pthread_join']) or
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name.startswith('__CSEQ_atomic') and not stmt.name.name == '__CSEQ_atomic_end') or
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name.startswith('__CSEQ_assume')) or
-                            (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == '__cs_cond_wait_2')
+                            (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == '__cs_cond_wait_2') or
+							(type(stmt) == pycparser.c_ast.Assignment and type(stmt.rvalue) is pycparser.c_ast.BinaryOp and type(stmt.rvalue.left) is pycparser.c_ast.FuncCall and stmt.rvalue.left.name.name in (core.common.changeID['pthread_create'], core.common.changeID['pthread_join']))
                             )
                         )
                         )):
@@ -418,7 +419,8 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == core.common.changeID['pthread_join']) or
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name.startswith('__CSEQ_atomic') and not stmt.name.name == '__CSEQ_atomic_end') or
                             (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name.startswith('__CSEQ_assume')) or
-                            (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == '__cs_cond_wait_2')
+                            (type(stmt) == pycparser.c_ast.FuncCall and stmt.name.name == '__cs_cond_wait_2') or
+							(type(stmt) == pycparser.c_ast.Assignment and type(stmt.rvalue) is pycparser.c_ast.BinaryOp and type(stmt.rvalue.left) is pycparser.c_ast.FuncCall and stmt.rvalue.left.name.name in (core.common.changeID['pthread_create'], core.common.changeID['pthread_join']))
                             )
                         )
                         )):

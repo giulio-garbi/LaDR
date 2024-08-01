@@ -746,9 +746,9 @@ class AbsDrRules:
         self.assertDisabledIIFModesAreNone(abs_mode, dr_mode, **kwargs)  
         if dr_mode == "TOP_ACCESS":
             return self.store_content(full_statement, self.fakeIfAssignment(self.comma_expr(
-                    self.visitor_visit(state, postop, abs_mode, "ACCESS", **kwargs),
-                    self.visitor_visit(state, postop, abs_mode, "WSE", **kwargs)
-                )), postop, abs_mode, dr_mode)
+                    self.visitor_visit(state, preop, abs_mode, "ACCESS", **kwargs),
+                    self.visitor_visit(state, preop, abs_mode, "WSE", **kwargs)
+                )), preop, abs_mode, dr_mode)
         
         unExp = preop.expr
         op = preop.op
