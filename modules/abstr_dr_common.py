@@ -7,6 +7,8 @@ from core import abs_dr_rules
 import os
 from core.support_file import SupportFileManager
 import copy
+import itertools
+import functools
 
 '''
 Utility class that allows to set a field to a specific value in a block and restore it when left.
@@ -1024,8 +1026,28 @@ void __CPROVER_set_field(void *a, char field[100], _Bool c){return;}
                 init = ""
                 if type_of_n == 'ArrayDecl':
                     init += ";"
-                    for index, ass_exp in enumerate(n.init):
-                        unary_exp = c_ast.ArrayRef(c_ast.ID(n.name), c_ast.Constant('int', str(index)))
+                    iter_index_assExp = None
+                    
+                    if len(n.init.exprs) > 0 and type(n.init.exprs[0]) is c_ast.Constant and getType(n.type.type) == 'ArrayDecl':
+                        # init matrix with array, e.g. int a[2][3] = {1,2,3,4,5,6}
+                        num_init_elems = len(n.init.exprs)
+                        dimensions = []
+                        product_dim = 1
+                        n_itr = n.type
+                        while getType(n_itr) == 'ArrayDecl':
+                            dimensions.append(int(n_itr.dim.value))
+                            n_itr = n_itr.type
+                            if dimensions[-1] is not None:
+                                product_dim = product_dim * dimensions[-1]
+                        for i in range(len(dimensions)):
+                            if dimensions[i] is None: #non-stated dimension
+                                dimensions[i] = num_init_elems // product_dim
+                                
+                        
+                        iter_index_assExp = itertools.zip_longest((functools.reduce(lambda ar, idx: c_ast.ArrayRef(ar, c_ast.Constant('int', str(idx))), idx, c_ast.ID(n.name)) for idx in itertools.product(*[range(x) for x in dimensions])), n.init.exprs, fillvalue=c_ast.Constant('int', '0'))
+                    else:
+                        iter_index_assExp = ((c_ast.ArrayRef(c_ast.ID(n.name), c_ast.Constant('int', str(index))), ass_exp) for index, ass_exp in enumerate(n.init))
+                    for unary_exp, ass_exp in iter_index_assExp:
                         assignment = c_ast.Assignment("=", unary_exp, ass_exp)
                         new_abs_dr_mode = {'abs_mode':"GET_VAL" if self.abs_on else None, 'dr_mode':None}
                         with BakAndRestore(self, 'abs_dr_mode', new_abs_dr_mode):
