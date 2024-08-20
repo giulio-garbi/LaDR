@@ -194,5 +194,20 @@ typedef int evutil_socket_t;
 
 int myoffsetof(char *txt);
 
+/* added for deeprace */
+
+struct timeval{
+	int tv_sec;
+	int tv_usec;
+};
+
+struct timezone{
+	char c;
+};
+
+struct timespec{
+	int tv_sec;
+};
+
 typedef int _____STOPSTRIPPINGFROMHERE_____;
 #endif
